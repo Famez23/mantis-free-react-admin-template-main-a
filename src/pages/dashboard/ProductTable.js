@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState,React,useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
+import axios from '../../../node_modules/axios/index';
 // material-ui
 import { Box, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
@@ -160,6 +160,31 @@ export default function OrderTable() {
   const [selected] = useState([]);
 
   const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
+ 
+  const [product, setProduct] = useState([]);
+  
+  
+  useEffect(() => {
+
+    async function getProduct() {
+        try {
+            const response = await axios.get('http://localhost:8080/api/product');
+            console.log(response.data);
+            setProduct(response.data);
+            console.log("product", product);
+  
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    
+    getProduct();
+    console.log("product:", product)
+}, []);
+
+
+
 
   return (
     <Box>
@@ -185,37 +210,55 @@ export default function OrderTable() {
           }}
         >
           <OrderTableHead order={order} orderBy={orderBy} />
-          <TableBody>
-            {stableSort(rows, getComparator(order, orderBy)).map((row, index) => {
-              const isItemSelected = isSelected(row.trackingNo);
-              const labelId = `enhanced-table-checkbox-${index}`;
+          
+          
+      
+          
+        
+      
+      <TableBody>
+            {product.map((object) => {
+              
+            var statue=3;
+            if((object.quantityStocked)<(object.thresholdMax)){
+              statue=1;
+            }
+            if ((object.quantityStocked)<(object.thresholdMin)) {
+              statue=0;
+            }
+            if ((object.quantityStocked)==0)
+            {
+              statue=2;
+            }
+          
 
               return (
                 <TableRow
                   hover
                   role="checkbox"
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  aria-checked={isItemSelected}
                   tabIndex={-1}
-                  key={row.trackingNo}
-                  selected={isItemSelected}
+                  key={object.id}
                 >
-                  <TableCell component="th" id={labelId} scope="row" align="left">
+                  <TableCell component="th"  scope="row" align="left">
                     <Link color="secondary" component={RouterLink} to="">
-                      {row.trackingNo}
+                      {object.nomenclature}
                     </Link>
                   </TableCell>
-                  <TableCell align="left">{row.name}</TableCell>
-                  <TableCell align="left">{row.fat}</TableCell>
+                  <TableCell align="left">{object.label}</TableCell>
+                  <TableCell align="left">{object.quantityStocked}</TableCell>
                   <TableCell align="left">
-                    <OrderStatus status={row.carbs} />
+                    
+
+                      <OrderStatus status={statue} />
+                    
                   </TableCell>
                   <TableCell align="right">
-                    <NumberFormat value={row.protein} displayType="text" thousandSeparator prefix="DT" />
+                    <NumberFormat value={object.price*object.quantityStocked} displayType="text" thousandSeparator prefix="DT" />
                   </TableCell>
                 </TableRow>
               );
-            })}
+              })}
           </TableBody>
         </Table>
       </TableContainer>

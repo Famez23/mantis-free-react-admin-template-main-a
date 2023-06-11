@@ -1,25 +1,14 @@
 import axios from '../../node_modules/axios/index'
 import { useEffect, React , useState} from 'react'
 
-export default function Product() {
+const GetProduct = async () => {
+  try {
+    const response = await axios.get('localhost:8080/api/product');
+    const data = response.data;
+    console.log(data)
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
 
-const [product, setProduct]=useState(null);
-
-    useEffect(()=>{
-        axios.get(
-            'http://localhost:8080/api/product'
-          ).then((response)=>{
-            setProduct(response.data)
-          })
-    },[]
-    );
-    if(!product) return null;
-    console.log(product.id);
-
-
-    return (
-    <>
-    <h1>{product.id}</h1>
-    </>
-  )
-}
+export default GetProduct;

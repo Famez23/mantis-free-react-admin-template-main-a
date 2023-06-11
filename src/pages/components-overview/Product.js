@@ -10,6 +10,8 @@ import ComponentSkeleton from './ComponentSkeleton';
 import OrdersTable from 'pages/dashboard/ProductTable';
 import MainCard from 'components/MainCard';
 import Add from 'components/@extended/Add';
+import AddType from 'components/@extended/AddType';
+import Stock from 'components/@extended/Stock';
 // import MainCard from 'components/MainCard';
 
 const ComponentTypography = () => (
@@ -25,6 +27,28 @@ const ComponentTypography = () => (
                       Ajouter un produit
                     </Typography>
                 </div>
+                
+            
+                <div style={{
+                  marginLeft: "10px", display: 'flex',
+                }}>
+                    <AddType/>
+                    <Typography color="black" variant="h6" fontsize="bold" spacing={1} margin={1} justifyContent="flex-start">
+                      Ajouter une famille
+                    </Typography>
+                </div>
+                
+                <div style={{
+                  marginLeft: "10px", display: 'flex',
+                }}>
+                    <Stock />
+                    <Typography color="black" variant="h6" fontsize="bold" spacing={1} margin={1} justifyContent="flex-start">
+                      Ajouter un type de stock
+                    </Typography>
+                </div>
+                
+              
+                
               </Grid>
             </Grid>
       <Grid container alignItems="center" justifyContent="space-between">

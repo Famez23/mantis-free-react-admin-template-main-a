@@ -16,7 +16,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 
 const Facture = () => {
-  const [value, setValue] = React.useState(dayjs('2022-04-17'));
+  const [value, setValue] = React.useState(dayjs());
   function onChange(newValue){
     newValue=DatePicker.value;
     return newValue;
@@ -26,19 +26,43 @@ const Facture = () => {
   function submit(){
     let newField= {nomenclature:'',qte:''};
     setField([...field,newField]);
+    console.log(field);
   }
   function remove(index){
     const list=[...field];
     list.splice(index,1);
     setField(list);
   }
-
-  // const reset=(event)=>{
-  //   let v=event.target.value;
-  //   return '';
-  // }
-    const sum="0.000DT"
+  const [facture, setFacture]=React.useState({
+    order:'',
+    date:'',
+    articles:[],
+    région:'',
+    ville:''
+  })
   
+    const sum="0.000DT"
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+
+      try {
+        const response = await axios.post('http://localhost:8080/api/product', 
+          {ordre:facture.nomenclature,
+          date:facture.label,
+          articles:facture.articles,
+          amountDelivered: 4300,
+          amountConsumed: 4300,
+          quantityConsumed: 122,
+          quantityDelivered: 0
+        });
+        console.log('Data posted successfully:', response.data);
+        setOpen(false);
+        window.location.reload();
+      } catch (error) {
+          console.error('Failed post data:', error);
+          console.log(error.response);
+      }
+  };
 
   return(
   <ComponentSkeleton>
@@ -70,26 +94,17 @@ const Facture = () => {
         </Grid>
         <Grid item xs={12} sm={6}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DemoContainer components={['DatePicker', 'DatePicker']}>
-        <DatePicker label="Uncontrolled picker" defaultValue={dayjs('2022-04-17')} />
+        <DemoContainer components={['DatePicker']}>
         <DatePicker
-          label="Controlled picker"
+          readOnly
+          label="Date de transaction"
           value={value}
           onChange={(newValue) => setValue(newValue)}
         />
       </DemoContainer>
     </LocalizationProvider>
         </Grid>
-        {/* <Grid item xs={12} sm={6}>
-          <TextField
-            id="address2"
-            name="address2"
-            label="Address line 2"
-            fullWidth
-            autoComplete="shipping address-line2"
-            variant="outlined"
-          />
-        </Grid> */}
+        
         <Grid item xs={12} sm={6}>
           <TextField
             required

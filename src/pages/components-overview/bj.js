@@ -1,6 +1,55 @@
+import React, { useState } from 'react';
+import axios from 'axios';
 
-import {React,useState,useEffect} from 'react';
-import axios from '../../../node_modules/axios/index';
+function MyComponent() {
+  const [id, setId] = useState(1);
+  const [data, setData] = useState(null);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/product/${id}`);
+      const fetchedData = response.data;
+      setData(fetchedData);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
+
+  const handleInputChange = (event) => {
+    setId(event.target.value);
+  };
+
+  const handleKeyUp = (event) => {
+    if (event.key === 'Enter') {
+      fetchData();
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={id}
+        onChange={handleInputChange}
+        onKeyUp={handleKeyUp}
+      />
+      <button onClick={fetchData}>Fetch Data</button>
+
+      {data && (
+        <div>
+          {/* Display the fetched data */}
+          <h2>Data:</h2>
+          <pre>{JSON.stringify(data, null, 2)}</pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default MyComponent;
+//
+
+import React from 'react';
 import dayjs from 'dayjs';
 import ComponentSkeleton from './ComponentSkeleton';
 import MainCard from 'components/MainCard';
@@ -17,60 +66,68 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 
 const Facture = () => {
-  //State
-const[fields,setFields]=useState(
-  [{
-    nomenclature:null,
-    qte:null
-  }]
-);
-const[id,setId]=useState('')
-const [data, setData] = useState([{id:""}]);
+  const sum="0.000DT";
 
-// Function:
-const  handleChange = (i, event) => {
-  let newFormValues = [...fields];
-  newFormValues[i][event.target.name] = event.target.value;
-  setId( event.target.value);
-  setFields(newFormValues);
+  //States:
+  const [value, setValue] = React.useState(dayjs());
+  const [data, setData] = React.useState(null);
+const[nom,setNom]=React.useState(null);
+  const [field,setField]=React.useState([{
+    nomenclature:'',
+    qte:''}])
+
+  
+  // const [facture, setFacture]=React.useState({
+  //   // order:'',
+  //   // date:'',
+  //   // articles:[],
+  //   // région:'',
+  //   // ville:''
+  // })
+  
+      //Functions
+ 
+  // function onChange(newValue){
+  //   newValue=DatePicker.value;
+  //   return newValue;
+  // }
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/product/${data}`);
+      const fetchedData = response.data;
+      setData(fetchedData);
+      console.log("here",fetchData.price)
+      // console.log("here",data.id)
+
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
+const  handleChange = (i, e) => {
+  let newFormValues = [...field];
+  newFormValues[i][e.target.name] = e.target.value;
+  setField(newFormValues);
   console.log(newFormValues);
 }
-const  removeFormFields = (i) => {
-  let newFormValues = [...fields];
-  newFormValues.splice(i, 1);
-  setFields(newFormValues)
-}
-function Add(){
-  let newField= {nomenclature:'',qte:''};
-  setFields([...fields,newField]);
-  console.log(fields);
-}
-// try {
-  //   const response = await axios.get(
-  //     `http://localhost:3001/api/product/${fields.nomenclature}`
-  //   );
-  //   const fetchedData = response.data;
-  //   setData(fetchedData);
-  // } catch (error) {
-  //   console.error("Failed to fetch data:", error);
-  // }
-const fetchData = async () => {
-  try {
-    const responseArray = await Promise.all(fields.map(async (field) => {
-      const url = `http://localhost:3001/api/product/${field.nomenclature}`;
-      const response = await axios.get(url);
-      const responseData= response.data;
-      setData((prev)=>[...prev,responseData]);
-      console.log("this is the data" ,data);
-      console.log(response.data);
-      return response.data;
-    }));
 
-    
-  } catch (error) {
-    console.error("Failed to fetch data:", error);
+const handleKeyUp = (event) => {
+  if (event.key === 'Enter') {
+    fetchData();
   }
 };
+  
+  function Add(){
+    let newField= {nomenclature:'',qte:''};
+    setField([...field,newField]);
+    console.log(field);
+  }
+ 
+  const  removeFormFields = (i) => {
+    let newFormValues = [...field];
+    newFormValues.splice(i, 1);
+    setField(newFormValues)
+  }
+  
   return(
   <ComponentSkeleton>
     <Typography variant="h6" gutterBottom>
@@ -105,8 +162,8 @@ const fetchData = async () => {
         <DatePicker
           readOnly
           label="Date de transaction"
-          // value={date}
-          onChange={(newDate) => setValue(newDate)}
+          value={value}
+          onChange={(newValue) => setValue(newValue)}
         />
       </DemoContainer>
     </LocalizationProvider>
@@ -140,15 +197,11 @@ const fetchData = async () => {
         <h3>Détailles</h3>
         </Grid> 
 
-        {fields.map((element,index)=>
+        {field.map((element,index)=>
         {  
           return (
             <>
-            {data.map((item,i)=> {
-              return(
-                <>
-                 {/* <Grid item xs={12} key={i}> */}
-                  <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={6}>
             <TextField
               required
               id="nom"
@@ -157,31 +210,26 @@ const fetchData = async () => {
               fullWidth
               autoComplete="shipping country"
               variant="outlined"
-              value={fields.nomenclature}
+              value={field.nomenclature}
               onChange={e=>handleChange(index,e)}
-              // onKeyUp={handleKeyUp}
+              onKeyUp={handleKeyUp}
               
             />
           </Grid> 
-          
           <Grid item xs={12} sm={2}>
             <TextField
               
               id="prix"
               name="prix"
+              label="prix Unitaire"
               fullWidth
               variant="outlined"
-              placeholder="prix "
               InputProps={{
                 readOnly: true,
               }}
-              value={item.price}
+              // value={product.unitPrice}
             />
-          </Grid>
-           {/* </Grid> */}
-
-                
-         
+          </Grid> 
           <Grid item xs={12} sm={1}>
             <TextField
               required
@@ -190,7 +238,7 @@ const fetchData = async () => {
               label="Qte"
               fullWidth
               variant="outlined"
-              value={fields.qte}
+              value={field.qte}
               onChange={e=>handleChange(index,e)}
             />
           </Grid>
@@ -207,25 +255,16 @@ const fetchData = async () => {
             />
             
           </Grid>
-          
           <Grid item xs={12} sm={1}>
-            <IconButton aria-label="delete"  color="error" 
-            onClick={()=>removeFormFields(index)}
-            >
+            <IconButton aria-label="delete"  color="error" onClick={()=>removeFormFields(index)}>
               <DeleteIcon />
             </IconButton>
             </Grid>
-            </>
-              )
-            })}
-            
           </>
           );
         })}
          <Grid item xs={3} >
-          <Button variant="contained" startIcon={<AddShoppingCartIcon color="white" />} 
-          onClick={Add} 
-          size="small">
+          <Button variant="contained" startIcon={<AddShoppingCartIcon color="white" />} onClick={Add} size="small">
             Ajouter
           </Button>
           </Grid> 
@@ -240,7 +279,7 @@ const fetchData = async () => {
           </center>
           </Grid> 
           <Grid item xs={3} >
-          {/* <b>{sum}</b> */}
+          <b>{sum}</b>
           </Grid> 
 
 
@@ -249,9 +288,7 @@ const fetchData = async () => {
           
           <Grid item xs={3} >
             <center>
-              <Button variant="outlined" color="success" size ="large" 
-              onClick={fetchData}
-              >
+              <Button variant="outlined" color="success" size ="large" onClick={fetchData}>
                 Valider
               </Button>
             </center>
@@ -270,4 +307,3 @@ const fetchData = async () => {
   
   };
 
-export default Facture;

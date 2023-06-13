@@ -183,6 +183,25 @@ export default function OrderTable() {
     console.log("product:", product)
 }, []);
 
+   useEffect(() => {
+
+    async function getProduct() {
+        try {
+            const response = await axios.get('http://localhost:8080/api/product');
+            console.log(response.data);
+            setProduct(response.data);
+            console.log("product", product);
+  
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    
+    getProduct();
+    console.log("product:", product)
+}, []);
+
 
 
 

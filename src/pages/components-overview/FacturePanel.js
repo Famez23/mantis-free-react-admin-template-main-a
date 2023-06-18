@@ -1,5 +1,4 @@
-
-import {React,useState,useEffect} from 'react';
+import {React,useState,useEffect, Fragment} from 'react';
 import axios from '../../../node_modules/axios/index';
 import dayjs from 'dayjs';
 import ComponentSkeleton from './ComponentSkeleton';
@@ -21,16 +20,49 @@ const Facture = () => {
 const[fields,setFields]=useState(
   [{
     nomenclature:null,
-    qte:null
+    prix:null,
+    qte:null,
+    total:null
   }]
 );
 const[id,setId]=useState('')
-const [data, setData] = useState([{id:""}]);
+const [data, setData] = useState([]);
 
 // Function:
-const  handleChange = (i, event) => {
+const  handleChange = (i, event,itemData) => {
+  fetchProd(event,i)
   let newFormValues = [...fields];
   newFormValues[i][event.target.name] = event.target.value;
+  
+ 
+  setId( event.target.value);
+  setFields(newFormValues);
+  console.log(newFormValues);
+}
+const  handlePrice = (e,itemData,index) => {
+  console.log('iiiiiiiiiiiiiiiiiiiiiiiiiiiii',itemData)
+  let newFormValues = [...fields];
+  // let p = data.find(el =>{
+
+  //   return el._id== newFormValues[index].nomenclature
+  // })
+  newFormValues[index].prix = itemData.price;
+
+ 
+  setId( e.target.value);
+  setFields(newFormValues);
+  console.log("ppppppp",newFormValues);
+}
+
+const  handleChangee = (i, event) => {
+  let newFormValues = [...fields];
+ newFormValues[i][event.target.name] = event.target.value;
+ console.log('prix',newFormValues[i].prix)
+  if(parseInt(newFormValues[i].prix)>0){
+    newFormValues[i].total= parseInt(newFormValues[i].qte)*parseFloat(newFormValues[i].prix)
+    console.log('sssssssssssssss',newFormValues)
+  }
+ 
   setId( event.target.value);
   setFields(newFormValues);
   console.log(newFormValues);
@@ -45,6 +77,9 @@ function Add(){
   setFields([...fields,newField]);
   console.log(fields);
 }
+console.log("field's length:" ,fields)
+console.log("data's length:", data.length,data)
+
 // try {
   //   const response = await axios.get(
   //     `http://localhost:3001/api/product/${fields.nomenclature}`
@@ -54,23 +89,80 @@ function Add(){
   // } catch (error) {
   //   console.error("Failed to fetch data:", error);
   // }
-const fetchData = async () => {
-  try {
-    const responseArray = await Promise.all(fields.map(async (field) => {
-      const url = `http://localhost:3001/api/product/${field.nomenclature}`;
-      const response = await axios.get(url);
-      const responseData= response.data;
-      setData((prev)=>[...prev,responseData]);
-      console.log("this is the data" ,data);
-      console.log(response.data);
-      return response.data;
-    }));
+//   useEffect(()=>{
+    
+//   },[]);
+// const fetchData = async () => {
+//   try {
+//     const responseArray = await Promise.all(fields.map(async (field) => {
+//       const url = `http://localhost:3001/api/product/${field.nomenclature}`;
+//       const response = await axios.get(url);
+//       const responseData= response.data;
+//       setData((prev)=>[...prev,responseData]);
+//       console.log("this is the data" ,data);
+//       console.log(response.data);
+//       return response.data;
+//     }));
 
     
-  } catch (error) {
-    console.error("Failed to fetch data:", error);
-  }
-};
+//   } catch (error) {
+//     console.error("Failed to fetch data:", error);
+//   }
+// };
+// useEffect(() => {
+//   const fetchData = async () => {
+//     try {
+//       const responseArray = await Promise.all(
+//         fields.map(async (field) => {
+//           const url = `http://localhost:3001/api/product/${field.nomenclature}`;
+//           const response = await axios.get(url);
+//           const responseData = response.data;
+//           setData((prev) => [...prev, responseData]);
+//           console.log("this is the data", data);
+//           console.log(response.data);
+//         })
+//       );
+
+//       // Handle the responseArray if needed
+//     } catch (error) {
+//       console.error("Failed to fetch data:", error);
+//     }
+//   };
+
+//   fetchData();
+// }, [fields]);
+const fetchProd = async (e,i) => {
+      try {
+        //const responseArray = await Promise.all(
+         
+            const url = `http://localhost:3001/api/product/${e.target.value}`;
+            const response = await axios.get(url);
+            const responseData = response.data;
+            const index = await data.find(element => {
+              console.log("ddddddd",element)
+                return (element.id === responseData.id);
+
+             
+            });
+            if (!index){
+              setData((prev) => [...prev, responseData]);
+            }
+            
+            let newFormValues = [...fields];
+            newFormValues[i].prix =responseData.price;
+            setFields(newFormValues);
+
+            console.log("this is the data", data);
+            console.log(response.data);
+         
+       // );
+  
+        // Handle the responseArray if needed
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+
   return(
   <ComponentSkeleton>
     <Typography variant="h6" gutterBottom>
@@ -140,88 +232,88 @@ const fetchData = async () => {
         <h3>Détailles</h3>
         </Grid> 
 
-        {fields.map((element,index)=>
-        {  
-          return (
-            <>
-            {data.map((item,i)=> {
-              return(
-                <>
-                 {/* <Grid item xs={12} key={i}> */}
-                  <Grid item xs={12} sm={6}>
-            <TextField
-              required
-              id="nom"
-              name="nomenclature"
-              label="Nomenclature Produit"
-              fullWidth
-              autoComplete="shipping country"
-              variant="outlined"
-              value={fields.nomenclature}
-              onChange={e=>handleChange(index,e)}
-              // onKeyUp={handleKeyUp}
-              
-            />
-          </Grid> 
-          
-          <Grid item xs={12} sm={2}>
-            <TextField
-              
-              id="prix"
-              name="prix"
-              fullWidth
-              variant="outlined"
-              placeholder="prix "
-              InputProps={{
-                readOnly: true,
-              }}
-              value={item.price}
-            />
-          </Grid>
-           {/* </Grid> */}
-
-                
-         
-          <Grid item xs={12} sm={1}>
-            <TextField
-              required
-              id="qte"
-              name="qte"
-              label="Qte"
-              fullWidth
-              variant="outlined"
-              value={fields.qte}
-              onChange={e=>handleChange(index,e)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={2}>
-          
-            <TextField
-              readOnly
-              id="qte"
-              name="qte"
-              label="Prix total"
-              fullWidth
-              variant="outlined"
-              // value={flow.amountConsumed}
-            />
+        {fields.map((field, index) => {
+          const itemData = data[index]
+          // if(itemData){
+          // let newFormValues = [...fields]
+          //   newFormValues[index].prix =  itemData.price 
+          //   setFields(newFormValues);}
+    return (
+      <>
+        <Grid item xs={12} sm={6} >
+          <TextField
+            required
+            id={`nom-${index}`}
+            name="nomenclature"
+            label="Nomenclature Produit"
+            fullWidth
+            autoComplete="shipping country"
+            variant="outlined"
+            value={field.nomenclature}
+            onChange={(e) => handleChange(index, e,itemData)}
+           
+            // onChange ={(e)=>fetchProd(e)}
+          />
+        </Grid>
+  
+        <Grid item xs={12} sm={2}>
+       
+          <TextField
+            id={`prix-${index}`}
+            name="prix"
+            fullWidth
+            variant="outlined"
+            placeholder="prix"
+            InputProps={{
+              readOnly: true,
+            }}
+            onChange={(e)=>handlePrice(e,itemData,index)}
+            // value={itemData ? itemData.price : ''}
+            value ={field.prix}
             
-          </Grid>
-          
-          <Grid item xs={12} sm={1}>
-            <IconButton aria-label="delete"  color="error" 
-            onClick={()=>removeFormFields(index)}
-            >
-              <DeleteIcon />
-            </IconButton>
-            </Grid>
-            </>
-              )
-            })}
             
-          </>
-          );
-        })}
+          />
+        </Grid>
+  
+        <Grid item xs={12} sm={1}>
+          <TextField
+            required
+            id={`qte-${index}`}
+            name="qte"
+            label="Qte"
+            fullWidth
+            variant="outlined"
+            value={field.qte}
+            onChange={(e) => handleChangee(index, e)}
+            
+          />
+        </Grid>
+  
+        <Grid item xs={12} sm={2}>
+          <TextField
+            readOnly
+            id={`total-${index}`}
+            name="total"
+            label="Prix total"
+            fullWidth
+            variant="outlined"
+            value={field.total}
+          />
+        </Grid>
+  
+        <Grid item xs={12} sm={1}>
+          <IconButton
+            aria-label="delete"
+            color="error"
+            onClick={() => removeFormFields(index)}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Grid>
+      </>
+    );
+  })}
+ 
          <Grid item xs={3} >
           <Button variant="contained" startIcon={<AddShoppingCartIcon color="white" />} 
           onClick={Add} 
@@ -250,7 +342,7 @@ const fetchData = async () => {
           <Grid item xs={3} >
             <center>
               <Button variant="outlined" color="success" size ="large" 
-              onClick={fetchData}
+              // onClick={fetchData}
               >
                 Valider
               </Button>

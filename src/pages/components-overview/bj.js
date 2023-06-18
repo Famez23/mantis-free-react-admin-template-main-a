@@ -306,4 +306,156 @@ const handleKeyUp = (event) => {
   </ComponentSkeleton>);
   
   };
+/////////////////
+{fields.map((e,index)=>
+    {  
+      return (
+        <>
+        {data.map((item,i)=> {
+          return(
+            <>
+             {/* <Grid item xs={12} key={i}> */}
+              <Grid item xs={12} sm={6}>
+        <TextField
+          required
+          id={`nom-${index}`}
+          name="nomenclature"
+          label="Nomenclature Produit"
+          fullWidth
+          autoComplete="shipping country"
+          variant="outlined"
+          value={fields.nomenclature}
+          onChange={e=>handleChange(index,e)}
+          // onKeyUp={handleKeyUp}
+          
+        />
+      </Grid> 
+      
+      <Grid item xs={12} sm={2}>
+        <TextField
+          
+          id={`price-${index}`}
+          name="prix"
+          fullWidth
+          variant="outlined"
+          placeholder="prix "
+          InputProps={{
+            readOnly: true,
+          }}
+          value={item.price}
+        />
+      </Grid>
+       {/* </Grid> */}
 
+            
+     
+      <Grid item xs={12} sm={1}>
+        <TextField
+          required
+          id={`qte-${index}`}
+          name="qte"
+          label="Qte"
+          fullWidth
+          variant="outlined"
+          value={fields.qte}
+          onChange={e=>handleChange(index,e)}
+        />
+      </Grid>
+      <Grid item xs={12} sm={2}>
+      
+        <TextField
+          readOnly
+          id={`total-${index}`}
+          name="qte"
+          label="Prix total"
+          fullWidth
+          variant="outlined"
+          // value={flow.amountConsumed}
+        />
+        
+      </Grid>
+      
+      <Grid item xs={12} sm={1}>
+        <IconButton aria-label="delete"  color="error" 
+        onClick={()=>removeFormFields(index)}
+        >
+          <DeleteIcon />
+        </IconButton>
+        </Grid>
+        </>
+          )
+        })}
+        
+      </>
+      );
+    })}
+//////////////////////////////////////
+{fields.map((field, index) => {
+    return (
+      <React.Fragment key={index}>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            required
+            id={`nom-${index}`}
+            name="nomenclature"
+            label="Nomenclature Produit"
+            fullWidth
+            autoComplete="shipping country"
+            variant="outlined"
+            value={field.nomenclature}
+            onChange={(e) => handleChange(index, e)}
+          />
+        </Grid>
+  
+        <Grid item xs={12} sm={2} key={index - 1}>
+          <TextField
+            id={`prix-${index}`}
+            name="prix"
+            fullWidth
+            variant="outlined"
+            placeholder="prix"
+            InputProps={{
+              readOnly: true,
+            }}
+            value={data[index] && data[index].price}
+          />
+        </Grid>
+  
+        <Grid item xs={12} sm={1}>
+          <TextField
+            required
+            id={`qte-${index}`}
+            name="qte"
+            label="Qte"
+            fullWidth
+            variant="outlined"
+            value={field.qte}
+            onChange={(e) => handleChange(index, e)}
+          />
+        </Grid>
+  
+        <Grid item xs={12} sm={2}>
+          <TextField
+            readOnly
+            id={`total-${index}`}
+            name="total"
+            label="Prix total"
+            fullWidth
+            variant="outlined"
+            // value={flow.amountConsumed}
+          />
+        </Grid>
+  
+        <Grid item xs={12} sm={1}>
+          <IconButton
+            aria-label="delete"
+            color="error"
+            onClick={() => removeFormFields(index)}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Grid>
+      </React.Fragment>
+    );
+  })}
+  

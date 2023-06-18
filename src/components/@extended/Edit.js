@@ -17,46 +17,71 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import { get } from 'lodash';
-// import getProduct from '../../pages/dashboard/ProductTable'
-export default function Add() {
+import EditIcon from '@mui/icons-material/Edit';
+
+export default function Edit(product) {
   const [open, setOpen] = React.useState(false);
   const [family, setFamily] =React.useState([]);
   const [stock, setStock] =React.useState([]);
-
-React.useEffect(() => {
-
-  async function getFamily() {
-      try {
-          const response = await axios.get('http://localhost:8080/api/type');
-          console.log(response.data);
-          setFamily(response.data);
-
-      } catch (error) {
-          console.error(error);
-      }
+  const [productData, setProductData] =React.useState({ 
+    nomenclature:product.nomenclature,
+    label: '',
+    family: null,
+    stock:null,
+    price:0,
+    seuilMx:null,
+    seuilMn:null});
+    
+  React.useEffect(()=>{
+  if(product){
+    setProductData({
+    nomenclature: product.nomenclature,
+    label: product.label,
+    family: product.family,
+    stock:product.stock,
+    price:0,
+    seuilMx:product.seuilMx,
+    seuilMn:product.seuilMn
+    })
   }
+  else console.log("no transfert")
+  console.log("update",productData);
+    },[product]);  
+  React.useEffect(() => {
 
+    async function getFamily() {
+        try {
+            const response = await axios.get('http://localhost:8080/api/type');
+            console.log(response.data);
+            setFamily(response.data);
   
-  getFamily();
-  console.log("Family:", family)
-}, []);
-React.useEffect(() => {
-
-  async function getStock() {
-      try {
-          const response = await axios.get('http://localhost:8080/api/stock');
-          console.log(response.data);
-          setStock(response.data);
-
-      } catch (error) {
-          console.error(error);
-      }
-  }
-
+        } catch (error) {
+            console.error(error);
+        }
+    }
   
-  getStock();
-  console.log("stock:", stock)
-}, []);
+    
+    getFamily();
+    console.log("Family:", family)
+  }, []);
+  React.useEffect(() => {
+  
+    async function getStock() {
+        try {
+            const response = await axios.get('http://localhost:8080/api/stock');
+            console.log(response.data);
+            setStock(response.data);
+  
+        } catch (error) {
+            console.error(error);
+        }
+    }
+  
+    
+    getStock();
+    console.log("stock:", stock)
+  }, []);
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -64,47 +89,37 @@ React.useEffect(() => {
   const handleClose = () => {
     setOpen(false);
   };
-  const [type, setType] = React.useState('');
-  const [unit, setUnit] = React.useState('');
-  const [postprod, setPostprod] =React.useState({
-    nomenclature: '',
-    label: '',
-    family: null,
-    stock:null,
-    price:0,
-    seuilMx:null,
-    seuilMn:null
-  });
+  
+  
+
   function handleChangee(event) {
-    setPostprod(prevPostProd => {
+    setProductData(prevPostProd => {
         return {
             ...prevPostProd,
             [event.target.name]: event.target.value
         }
     })
-      }
-        console.log(postprod);
-    
+      };
+    console.log(productData);
 
-    const handleSubmit = async (event) => {
-      event.preventDefault();
+    const handleSubmit = async (id) => {
 
       try {
-        const response = await axios.post('http://localhost:8080/api/product', 
-          {nomenclature:postprod.nomenclature,
-          label:postprod.label,
-          quantityStocked:99,
-          stock:{id:postprod.stock},
-          productType:{id:postprod.family},
-          price:postprod.price,
-          thresholdMax:postprod.seuilMx,
-          thresholdMin:postprod.seuilMn
+        const response = await axios.put(`http://localhost:8080/api/product/${id}`, 
+          {nomenclature:productData.nomenclature,
+          label:productData.label,
+          quantityStocked:0,
+          stock:{id:productData.stock},
+          productType:{id:productData.family},
+          price:productData.price,
+          thresholdMax:productData.seuilMx,
+          thresholdMin:productData.seuilMn
         });
-        console.log('Data posted successfully:', response.data);
+        console.log('Data modified successfully:', response.data);
         setOpen(false);
         window.location.reload();
       } catch (error) {
-          console.error('Failed post data:', error);
+          console.error('Failed modify data:', error);
           console.log(error.response);
       }
   };
@@ -117,7 +132,7 @@ React.useEffect(() => {
   return (
     <div>
       <IconButton variant="outlined" onClick={handleClickOpen}>
-        <AddIcon />
+        <EditIcon />
       </IconButton>
       {open && (<Dialog open={open} onClose={handleClose}>
        
@@ -125,10 +140,10 @@ React.useEffect(() => {
             <DialogContent>
               <form onSubmit={handleSubmit}>
               <FormControl sx={{ m: 1, minWidth: 120 }}>
-                <TextField name="nomenclature" label="nomenclature" variant="outlined" value={postprod.nomenclature}  onChange={handleChangee} />
+                <TextField name="nomenclature" label="nomenclature" variant="outlined" value={productData.nomenclature}  onChange={handleChangee} />
               </FormControl>
               <FormControl sx={{ m: 1, minWidth: 120 }}>
-                <TextField name="label" label="Libellé" variant="outlined"  value={postprod.label} onChange={handleChangee} />
+                <TextField name="label" label="Libellé" variant="outlined"  value={productData.label} onChange={handleChangee} />
               </FormControl>
               <br/>
               <FormControl sx={{ m: 1, minWidth: 120 }}>
@@ -136,7 +151,7 @@ React.useEffect(() => {
                 <Select
                 labelId="demo-simple-select-helper-label"
                 name="family"
-                value={postprod.family}
+                value={productData.family}
                 label="family"
                 onChange={handleChangee}
                 
@@ -154,7 +169,7 @@ React.useEffect(() => {
                 <Select
                 labelId="demo-simple-select-helper-label"
                 name="stock"
-                value={postprod.stock}
+                value={productData.stock}
                 label="stock"
                 onChange={handleChangee}
                  >
@@ -166,10 +181,10 @@ React.useEffect(() => {
               </Select>
             </FormControl>
             <FormControl sx={{m:1, minWidth:120}}>
-              <TextField name="seuilMx" label="seuilMx" variant="outlined"  value={postprod.seuilMx} onChange={handleChangee}/>
+              <TextField name="seuilMx" label="seuilMx" variant="outlined"  value={productData.seuilMx} onChange={handleChangee}/>
             </FormControl>
             <FormControl sx={{m:1, minWidth:120}}>
-              <TextField name="seuilMn" label="seuilMn" variant="outlined"  value={postprod.seuilMn} onChange={handleChangee}/>
+              <TextField name="seuilMn" label="seuilMn" variant="outlined"  value={productData.seuilMn} onChange={handleChangee}/>
             </FormControl>
             <br/>
             <FormControl  sx={{ m: 1 }}>
@@ -178,21 +193,12 @@ React.useEffect(() => {
             name="price"
             startAdornment={<InputAdornment position="start">DT</InputAdornment>}
             label="Amount"
-            value={postprod.price}
+            value={productData.price}
             onChange={handleChangee}
           />
         </FormControl>
         <br/>
-        {/* <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <Autocomplete
-                fullWidth
-                id="combo-box-demo"
-                // options={top100Films}
-                sx={{ width: 200 }}
-                ListboxProps={{ style: { maxHeight: 150 } }}
-                renderInput={() => <TextField  label="Fournisseurs" />}
-              />
-            </FormControl> */}<DialogActions>
+        <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>
             <Button onClick={handleSubmit}>Add</Button>
           </DialogActions>

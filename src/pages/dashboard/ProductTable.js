@@ -2,6 +2,9 @@ import PropTypes from 'prop-types';
 import { useState,React,useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import axios from '../../../node_modules/axios/index';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
 // material-ui
 import { Box, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
@@ -10,6 +13,7 @@ import NumberFormat from 'react-number-format';
 
 // project import
 import Dot from 'components/@extended/Dot';
+import Edit from 'components/@extended/Edit';
 
 function createData(trackingNo, name, fat, carbs, protein) {
   return { trackingNo, name, fat, carbs, protein };
@@ -164,6 +168,18 @@ export default function OrderTable() {
   const [product, setProduct] = useState([]);
   
   
+  const handleEdit=(id)=>{
+    try{
+      const response =axios.get(`http://localhost:8080/api/product${id}`);
+            console.log(response.data);
+            setEdit(response.data);
+            console.log("Edit:", product);
+    }
+    catch(err){
+      console.log(err);
+    }
+    
+  }
   useEffect(() => {
 
     async function getProduct() {
@@ -183,25 +199,17 @@ export default function OrderTable() {
     console.log("product:", product)
 }, []);
 
-   useEffect(() => {
-
-    async function getProduct() {
-        try {
-            const response = await axios.get('http://localhost:8080/api/product');
-            console.log(response.data);
-            setProduct(response.data);
-            console.log("product", product);
-  
-        } catch (error) {
-            console.error(error);
-        }
+  const removeProduct= async (id,e)=>{
+    e.preventDefault();
+    try {
+      const response = await axios.delete(`http://localhost:8080/api/product/${id}`);
+      console.log('Data deleted successfully:', response.data);
+      window.location.reload();
+    } catch (error) {
+        console.error('Failed delete data:', error);
+        console.log(error.response);
     }
-
-    
-    getProduct();
-    console.log("product:", product)
-}, []);
-
+  }
 
 
 
@@ -236,7 +244,7 @@ export default function OrderTable() {
         
       
       <TableBody>
-            {product.map((object) => {
+            {product.map((object, index) => {
               
             var statue=3;
             if((object.quantityStocked)<(object.thresholdMax)){
@@ -275,6 +283,18 @@ export default function OrderTable() {
                   <TableCell align="right">
                     <NumberFormat value={object.price*object.quantityStocked} displayType="text" thousandSeparator prefix="DT" />
                   </TableCell>
+                  <TableCell align="left">
+                    <IconButton
+                      aria-label="delete"
+                      color="error"
+                      onClick={(e) => removeProduct(object.id,e)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell align="left">
+                    <Edit product={product}/>
+                    </TableCell>
                 </TableRow>
               );
               })}

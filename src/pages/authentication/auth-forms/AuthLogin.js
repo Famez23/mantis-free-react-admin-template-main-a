@@ -1,37 +1,25 @@
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-
+import { Link } from 'react-router-dom';
+import axios from '../../../../node_modules/axios/index';
+import {useNavigate} from 'react-router-dom';
 // material-ui
 import {
   Button,
-  Checkbox,
-  Divider,
-  FormControlLabel,
   FormHelperText,
   Grid,
-  Link,
-  IconButton,
-  InputAdornment,
   InputLabel,
   OutlinedInput,
-  Stack,
-  Typography
+  Stack
 } from '@mui/material';
 
-// third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 
-// project import
-import FirebaseSocial from './FirebaseSocial';
 import AnimateButton from 'components/@extended/AnimateButton';
 
-// assets
-import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
-
-// ============================|| FIREBASE - LOGIN ||============================ //
 
 const AuthLogin = () => {
+  const navigate = useNavigate();
   const [checked, setChecked] = React.useState(false);
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -42,7 +30,30 @@ const AuthLogin = () => {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
+  const handleChange= (event)=>{
+    event.preventDefault();
+    setEmail(event.target.value)
+  }
+  const [email,setEmail]=React.useState('');
+  const lien= 'http://localhost:3001/free';
+  const fetchEmail = async () => {
+    try {
+      const response = await axios.post(`http://localhost:8080/mailsend`,
+      {
+        to:email,
+        subject:"@NOREPLYMESSAGE",
+        message:`bonjo ${lien}`
+      }
+      );
+      const fetchedData = response.data;
+      console.log("LOG:",fetchedData)
+      // navigate('/');
+      // console.log("here",data.id)
 
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
   return (
     <>
       <Formik
@@ -66,7 +77,7 @@ const AuthLogin = () => {
           }
         }}
       >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+        {({ errors, handleBlur, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
@@ -75,7 +86,7 @@ const AuthLogin = () => {
                   <OutlinedInput
                     id="email-login"
                     type="email"
-                    value={values.email}
+                    value={email}
                     name="email"
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -148,9 +159,12 @@ const AuthLogin = () => {
               )}
               <Grid item xs={12}>
                 <AnimateButton>
-                  <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
+                  {/* <Link to='/'> */}
+                  <Button disableElevation disabled={isSubmitting} onClick={fetchEmail} fullWidth size="large" type="submit" variant="contained" color="primary">
+                  
                     Se connecter
                   </Button>
+                   {/* </Link> */}
                 </AnimateButton>
               </Grid>
               {/* <Grid item xs={12}>
